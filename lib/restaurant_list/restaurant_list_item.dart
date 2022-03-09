@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/core/model/simple_restaurant.dart';
 import 'package:restaurant_app/core/widget/custom_image.dart';
 import 'package:restaurant_app/core/widget/two_tile_text.dart';
 
-import '../core/model/restaurant.dart';
-
 class RestaurantListItem extends StatelessWidget {
-  final Restaurant restaurant;
+  final SimpleRestaurant restaurant;
 
   const RestaurantListItem({
     Key? key,
@@ -21,7 +20,7 @@ class RestaurantListItem extends StatelessWidget {
           child: Hero(
             tag: restaurant.name,
             child: CustomImage(
-              url: restaurant.pictureId,
+              url: "https://restaurant-api.dicoding.dev/images/small/${restaurant.pictureId}",
               fit: BoxFit.fitWidth,
             ),
           ),

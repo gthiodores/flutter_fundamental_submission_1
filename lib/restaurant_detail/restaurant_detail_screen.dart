@@ -13,15 +13,15 @@ class RestaurantDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Restaurant? restaurant =
         ModalRoute.of(context)?.settings.arguments as Restaurant?;
-    return _buildScreen(restaurant);
+    return _buildScreen(restaurant, context);
   }
 
-  Widget _buildScreen(Restaurant? restaurant) {
+  Widget _buildScreen(Restaurant? restaurant, BuildContext context) {
     if (restaurant == null) {
       return _buildEmptyScreen();
     }
 
-    return _buildCustomScrollRestaurantDetail(restaurant);
+    return _buildCustomScrollRestaurantDetail(restaurant, context);
   }
 
   Widget _buildEmptyScreen() {
@@ -33,13 +33,22 @@ class RestaurantDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomScrollRestaurantDetail(Restaurant restaurant) {
+  Widget _buildCustomScrollRestaurantDetail(
+    Restaurant restaurant,
+    BuildContext context,
+  ) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             expandedHeight: 150,
+            leading: IconButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              icon: const Icon(Icons.arrow_back),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: Text(
@@ -95,9 +104,9 @@ class RestaurantDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final item = restaurant.foods[index];
+                final item = restaurant.menus.foods[index];
                 return Text(item.name);
-              }, childCount: restaurant.foods.length),
+              }, childCount: restaurant.menus.foods.length),
             ),
           ),
           const SliverPadding(
@@ -113,14 +122,13 @@ class RestaurantDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final item = restaurant.drinks[index];
+                final item = restaurant.menus.drinks[index];
                 return Text(item.name);
-              }, childCount: restaurant.drinks.length),
+              }, childCount: restaurant.menus.drinks.length),
             ),
           ),
         ],
       ),
     );
   }
-
 }

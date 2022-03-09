@@ -1,39 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant_app/core/model/restaurant.dart';
-import 'package:restaurant_app/restaurant_detail/restaurant_detail_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurant_app/core/di/dependency_provider.dart';
+import 'package:restaurant_app/core/model/simple_restaurant.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_item.dart';
+import 'package:restaurant_app/restaurant_list/restaurant_search_screen.dart';
 
-class RestaurantListScreen extends StatelessWidget {
+class RestaurantListScreen extends ConsumerWidget {
   static const route = '/list_restaurant';
 
   const RestaurantListScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final _restaurantList = ref.watch(fetchRestaurantProvider);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Restaurant')),
-      body: FutureBuilder<String>(
-        future: DefaultAssetBundle.of(context)
-            .loadString('assets/resources/local_restaurant.json'),
-        builder: (context, snapshot) {
-          final List<Restaurant> items = parseRestaurant(snapshot.data);
-          return ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, RestaurantDetailScreen.route,
-                      arguments: item);
-                },
-                child: RestaurantListItem(
-                  restaurant: item,
-                ),
-              );
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text('Restaurant'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(RestaurantSearchScreen.route);
+              },
+              icon: const Icon(Icons.search))
+        ],
       ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.refresh(fetchRestaurantProvider);
+        },
+        child: _restaurantList.when(
+          data: (data) => _buildListItemViews(restaurants: data),
+          error: (err, stack) => _buildErrorView(onRetry: () async {
+            ref.refresh(fetchRestaurantProvider);
+          }),
+          loading: () => _buildCenterLoadingView(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterLoadingView() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildErrorView({Function()? onRetry}) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Fetching data failed!"),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: const Text("Retry"),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListItemViews({
+    required List<SimpleRestaurant> restaurants,
+    Function()? onTap,
+  }) {
+    return ListView.builder(
+      itemCount: restaurants.length,
+      itemBuilder: (context, index) {
+        final item = restaurants[index];
+        return InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RestaurantListItem(restaurant: item),
+          ),
+        );
+      },
     );
   }
 }
