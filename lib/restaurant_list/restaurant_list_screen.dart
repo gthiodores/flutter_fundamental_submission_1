@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
+import 'package:restaurant_app/restaurant_detail/restaurant_detail_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_item.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_search_screen.dart';
 
@@ -30,10 +31,15 @@ class RestaurantListScreen extends ConsumerWidget {
           ref.refresh(fetchRestaurantProvider);
         },
         child: _restaurantList.when(
-          data: (data) => _buildListItemViews(restaurants: data),
-          error: (err, stack) => _buildErrorView(onRetry: () async {
-            ref.refresh(fetchRestaurantProvider);
-          }),
+          data: (data) =>
+              _buildListItemViews(restaurants: data, onTap: (id) {
+                Navigator.of(context).pushNamed(
+                    RestaurantDetailScreen.route, arguments: id);
+              }),
+          error: (err, stack) =>
+              _buildErrorView(onRetry: () async {
+                ref.refresh(fetchRestaurantProvider);
+              }),
           loading: () => _buildCenterLoadingView(),
         ),
       ),
@@ -63,14 +69,16 @@ class RestaurantListScreen extends ConsumerWidget {
 
   Widget _buildListItemViews({
     required List<SimpleRestaurant> restaurants,
-    Function()? onTap,
+    Function(String)? onTap,
   }) {
     return ListView.builder(
       itemCount: restaurants.length,
       itemBuilder: (context, index) {
         final item = restaurants[index];
         return InkWell(
-          onTap: onTap,
+          onTap: () {
+            onTap?.call(item.id);
+          },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: RestaurantListItem(restaurant: item),

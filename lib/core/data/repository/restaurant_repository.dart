@@ -16,7 +16,7 @@ class RestaurantRepository implements IRestaurantRepository {
   Stream<List<SimpleRestaurant>> searchRestaurant(String query) async* {
     final cacheList = _inMemoryCache
         .where((element) =>
-            element.name.toLowerCase().contains(query.toLowerCase()))
+        element.name.toLowerCase().startsWith(query.toLowerCase()))
         .toList();
 
     yield cacheList;
@@ -26,11 +26,12 @@ class RestaurantRepository implements IRestaurantRepository {
       for (var item in fetchResult.restaurants) {
         if (!cacheList.any((element) => element.id == item.id)) {
           _inMemoryCache.add(item);
-          yield _inMemoryCache;
+          cacheList.add(item);
+          yield cacheList;
         }
       }
     } catch (e) {
-      yield _inMemoryCache;
+      yield cacheList;
     }
   }
 
@@ -50,14 +51,17 @@ class RestaurantRepository implements IRestaurantRepository {
 
   @override
   Future<Restaurant> getRestaurant(String restaurantId) async {
-    if (_detailCache == null || _detailCache?.id == restaurantId) {
-      try {
-        _detailCache = await _apiService.getRestaurant(restaurantId);
-      } catch (e) {
-        rethrow;
-      }
+    if (_detailCache == null) {
+      return await _getRestaurantHelper(restaurantId);
     }
 
-    return _detailCache!;
+    return _detailCache?.id == restaurantId ? _detailCache! : await _getRestaurantHelper(restaurantId);
+  }
+
+  Future<Restaurant> _getRestaurantHelper(restaurantId) async {
+    print("Getting restaurant from the API");
+    final item = await _apiService.getRestaurant(restaurantId);
+    _detailCache = item;
+    return item;
   }
 }

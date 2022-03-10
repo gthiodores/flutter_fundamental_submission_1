@@ -11,12 +11,11 @@ import '../../model/restaurant.dart';
 class ApiService {
   static const String _baseUrl = "https://restaurant-api.dicoding.dev";
   final String _listUrl = "$_baseUrl/list";
-  final String _detailUrl = "$_baseUrl/detail/";
+  final String _detailUrl = "$_baseUrl/detail";
   final String _searchUrl = "$_baseUrl?q=";
   final String _addCommentsUrl = "$_baseUrl/review";
 
   Future<RestaurantList> getRestaurantList() async {
-    print("Function get restaurant list called");
     final response = await http.get(Uri.parse(_listUrl));
 
     if (response.statusCode == 200) {
