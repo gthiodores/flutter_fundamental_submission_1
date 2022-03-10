@@ -10,8 +10,6 @@ class RestaurantRepository implements IRestaurantRepository {
 
   RestaurantRepository(this._apiService);
 
-  /// Returns a cached list of items matching the query and then make a network call
-  /// and refresh the data with matching data from the network.
   @override
   Stream<List<SimpleRestaurant>> searchRestaurant(String query) async* {
     final cacheList = _inMemoryCache
@@ -35,7 +33,6 @@ class RestaurantRepository implements IRestaurantRepository {
     }
   }
 
-  // Read from the inMemoryCache if any is cached
   @override
   Future<List<SimpleRestaurant>> getRestaurantList() async {
     try {
@@ -59,7 +56,6 @@ class RestaurantRepository implements IRestaurantRepository {
   }
 
   Future<Restaurant> _getRestaurantHelper(restaurantId) async {
-    print("Getting restaurant from the API");
     final item = await _apiService.getRestaurant(restaurantId);
     _detailCache = item;
     return item;

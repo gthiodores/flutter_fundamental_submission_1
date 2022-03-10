@@ -19,7 +19,6 @@ class ApiService {
     final response = await http.get(Uri.parse(_listUrl));
 
     if (response.statusCode == 200) {
-      print("Json: ${response.body}");
       return RestaurantList.fromRawJson(response.body);
     } else {
       throw Exception(response.statusCode);

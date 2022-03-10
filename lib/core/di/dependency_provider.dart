@@ -19,7 +19,6 @@ final fetchRestaurantProvider =
 final fetchSearchProvider =
     StreamProvider.family.autoDispose<List<SimpleRestaurant>, String>(
   (ref, query) {
-    print("search called with query: $query");
     final repository = ref.read(_restaurantRepoProvider);
     return repository.searchRestaurant(query);
   },

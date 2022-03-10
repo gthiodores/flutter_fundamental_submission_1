@@ -57,11 +57,16 @@ class RestaurantDetailScreen extends ConsumerWidget {
         SliverAppBar(
           pinned: true,
           expandedHeight: 150,
-          leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(Icons.arrow_back),
+          leading: ClipOval(
+            child: Material(
+              color: Colors.green,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
+            ),
           ),
           flexibleSpace: FlexibleSpaceBar(
             centerTitle: true,
@@ -76,7 +81,8 @@ class RestaurantDetailScreen extends ConsumerWidget {
               child: Hero(
                 tag: restaurant.name,
                 child: CustomImage(
-                  url: "https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId}",
+                  url:
+                      "https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId}",
                   fit: BoxFit.fitWidth,
                 ),
               ),
@@ -96,6 +102,35 @@ class RestaurantDetailScreen extends ConsumerWidget {
                 ),
                 Text('${restaurant.rating} / 5'),
               ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(8),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final item = restaurant.categories[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  color: Colors.green,
+                  child: Center(
+                    child: Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              );
+            }, childCount: restaurant.categories.length),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 2,
             ),
           ),
         ),
