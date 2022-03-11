@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
 import 'package:restaurant_app/core/widget/custom_image.dart';
 import 'package:restaurant_app/core/widget/two_tile_text.dart';
+import 'package:restaurant_app/restaurant_detail/widgets/restaurant_detail_categories.dart';
 
 import '../core/model/restaurant.dart';
 
@@ -105,34 +106,9 @@ class RestaurantDetailScreen extends ConsumerWidget {
             ),
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.all(8),
-          sliver: SliverGrid(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final item = restaurant.categories[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  color: Colors.green,
-                  child: Center(
-                    child: Text(
-                      item.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              );
-            }, childCount: restaurant.categories.length),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 2,
-            ),
-          ),
+        RestaurantCategoriesGrid(
+          restaurant.categories,
+          gridCount: 4,
         ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
@@ -152,10 +128,13 @@ class RestaurantDetailScreen extends ConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final item = restaurant.menus.foods[index];
-              return Text(item.name);
-            }, childCount: restaurant.menus.foods.length),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final item = restaurant.menus.foods[index];
+                return Text(item.name);
+              },
+              childCount: restaurant.menus.foods.length,
+            ),
           ),
         ),
         const SliverPadding(
@@ -170,10 +149,13 @@ class RestaurantDetailScreen extends ConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final item = restaurant.menus.drinks[index];
-              return Text(item.name);
-            }, childCount: restaurant.menus.drinks.length),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final item = restaurant.menus.drinks[index];
+                return Text(item.name);
+              },
+              childCount: restaurant.menus.drinks.length,
+            ),
           ),
         ),
       ],

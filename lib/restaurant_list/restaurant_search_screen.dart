@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
+import 'package:restaurant_app/core/model/result_wrapper.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_item.dart';
 import 'package:restaurant_app/restaurant_list/widgets/restaurant_search_widget.dart';
 
@@ -41,7 +42,26 @@ class RestaurantSearchScreen extends ConsumerWidget {
             ),
           ),
           searchStream.when(
-            data: (data) => _buildSearchResultWidget(data),
+            data: (data) {
+              if (data is SuccessResult) {
+                final result = data as SuccessResult<List<SimpleRestaurant>>;
+                return _buildSearchResultWidget(result.data);
+              } else if (data is ErrorResult) {
+                final result = data as ErrorResult<List<SimpleRestaurant>>;
+                if (result.data != null) {
+                  return _buildSearchResultWidget(result.data!);
+                }
+                return _buildEmptyList();
+              } else {
+                final result = data as LoadingResult<List<SimpleRestaurant>>;
+                if (result.data == null) {
+                  return _buildCenterLoadingView();
+                }
+                return result.data!.isEmpty
+                    ? _buildCenterLoadingView()
+                    : _buildSearchResultWidget(result.data!);
+              }
+            },
             error: (err, stack) => _buildErrorView(onRetry: () {
               ref.refresh(fetchSearchProvider(searchText));
             }),
@@ -77,16 +97,27 @@ class RestaurantSearchScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildEmptyList() {
+    return const SliverFillRemaining(
+      child: Center(
+        child: Text("Tidak ditemukan restoran dengan nama tersebut."),
+      ),
+      hasScrollBody: false,
+    );
+  }
+
   Widget _buildSearchResultWidget(List<SimpleRestaurant> data) {
-    return SliverList(
-        delegate: SliverChildBuilderDelegate(
-      (context, index) {
-        final item = data[index];
-        return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RestaurantListItem(restaurant: item));
-      },
-      childCount: data.length,
-    ));
+    return data.isEmpty
+        ? _buildEmptyList()
+        : SliverList(
+            delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final item = data[index];
+              return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: RestaurantListItem(restaurant: item));
+            },
+            childCount: data.length,
+          ));
   }
 }

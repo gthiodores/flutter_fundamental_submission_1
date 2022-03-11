@@ -3,6 +3,8 @@ import 'package:restaurant_app/core/domain/restaurant_repository_interface.dart'
 import 'package:restaurant_app/core/model/restaurant.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
 
+import '../../model/result_wrapper.dart';
+
 class RestaurantRepository implements IRestaurantRepository {
   final ApiService _apiService;
   final List<SimpleRestaurant> _inMemoryCache = [];
@@ -11,13 +13,13 @@ class RestaurantRepository implements IRestaurantRepository {
   RestaurantRepository(this._apiService);
 
   @override
-  Stream<List<SimpleRestaurant>> searchRestaurant(String query) async* {
+  Stream<Result<List<SimpleRestaurant>>> searchRestaurant(String query) async* {
     final cacheList = _inMemoryCache
         .where((element) =>
-        element.name.toLowerCase().startsWith(query.toLowerCase()))
+            element.name.toLowerCase().startsWith(query.toLowerCase()))
         .toList();
 
-    yield cacheList;
+    yield Result.loading(data: cacheList);
 
     try {
       final fetchResult = await _apiService.getRestaurantSearchResult(query);
@@ -25,11 +27,11 @@ class RestaurantRepository implements IRestaurantRepository {
         if (!cacheList.any((element) => element.id == item.id)) {
           _inMemoryCache.add(item);
           cacheList.add(item);
-          yield cacheList;
+          yield Result.success(cacheList);
         }
       }
     } catch (e) {
-      yield cacheList;
+      yield Result.error("An error occured", data: cacheList);
     }
   }
 
@@ -52,7 +54,9 @@ class RestaurantRepository implements IRestaurantRepository {
       return await _getRestaurantHelper(restaurantId);
     }
 
-    return _detailCache?.id == restaurantId ? _detailCache! : await _getRestaurantHelper(restaurantId);
+    return _detailCache?.id == restaurantId
+        ? _detailCache!
+        : await _getRestaurantHelper(restaurantId);
   }
 
   Future<Restaurant> _getRestaurantHelper(restaurantId) async {

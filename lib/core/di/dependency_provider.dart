@@ -5,6 +5,7 @@ import 'package:restaurant_app/core/model/simple_restaurant.dart';
 
 import '../data/api/api_service.dart';
 import '../model/restaurant.dart';
+import '../model/result_wrapper.dart';
 
 final _apiProvider = Provider((ref) => ApiService());
 final Provider<IRestaurantRepository> _restaurantRepoProvider = Provider((ref) {
@@ -17,7 +18,7 @@ final fetchRestaurantProvider =
   return repository.getRestaurantList();
 });
 final fetchSearchProvider =
-    StreamProvider.family.autoDispose<List<SimpleRestaurant>, String>(
+    StreamProvider.family.autoDispose<Result<List<SimpleRestaurant>>, String>(
   (ref, query) {
     final repository = ref.read(_restaurantRepoProvider);
     return repository.searchRestaurant(query);
