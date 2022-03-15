@@ -7,7 +7,7 @@ import 'package:http/testing.dart';
 /// Responses are taken from https://restaurant-api.dicoding/dev
 final mockHttpClient = MockClient((request) async {
   switch (request.url.path) {
-    case "https://restaurant-api.dicoding.dev/list":
+    case "/list":
       return Response(
         jsonEncode({
           "error": false,
@@ -36,7 +36,7 @@ final mockHttpClient = MockClient((request) async {
         }),
         200,
       );
-    case "https://restaurant-api-dicoding.dev/detail":
+    case "/detail":
       return Response(
         jsonEncode({
           "error": false,
@@ -86,24 +86,31 @@ final mockHttpClient = MockClient((request) async {
         }),
         200,
       );
-    case "https://restaurant-api-dicoding.dev/search?q=test":
-      return Response(
-        jsonEncode({
-          "error": false,
-          "founded": 1,
-          "restaurants": [
-            {
-              "id": "fnfn8mytkpmkfw1e867",
-              "name": "Makan mudah",
-              "description": "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, ...",
-              "pictureId": "22",
-              "city": "Medan",
-              "rating": 3.7
-            }
-          ]
-        }),
-        200,
-      );
+    case "/search":
+      if (request.url.query == "q=test") {
+        return Response(
+          jsonEncode({
+            "error": false,
+            "founded": 1,
+            "restaurants": [
+              {
+                "id": "fnfn8mytkpmkfw1e867",
+                "name": "Makan mudah",
+                "description": "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, ...",
+                "pictureId": "22",
+                "city": "Medan",
+                "rating": 3.7
+              }
+            ]
+          }),
+          200,
+        );
+      } else {
+        return Response(
+          jsonEncode({"message": "Unknown endpoint"}),
+          404,
+        );
+      }
     default:
       return Response(
         jsonEncode({"message": "Unknown endpoint"}),

@@ -38,7 +38,7 @@ class FakeApiService extends IApiService {
   @override
   Future<RestaurantSearch> getRestaurantSearchResult(String query) async {
     final response = await _client
-        .get(Uri.parse("https://restaurant-api-dicoding.dev/search?q=$query"));
+        .get(Uri.parse("https://restaurant-api.dicoding.dev/search?q=$query"));
 
     if (response.statusCode == 200) {
       return RestaurantSearch.fromRawJson(response.body);
