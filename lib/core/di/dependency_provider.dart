@@ -1,13 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurant_app/core/data/api/api_service_interface.dart';
 import 'package:restaurant_app/core/data/repository/restaurant_repository.dart';
 import 'package:restaurant_app/core/domain/restaurant_repository_interface.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
+import 'package:http/http.dart' as http;
 
 import '../data/api/api_service.dart';
 import '../model/restaurant.dart';
 import '../model/result_wrapper.dart';
 
-final _apiProvider = Provider((ref) => ApiService());
+final Provider<http.Client> _clientProvider = Provider((ref) => http.Client());
+final Provider<IApiService> _apiProvider = Provider((ref) {
+  final httpClient = ref.read(_clientProvider);
+  return ApiService(httpClient);
+});
 final Provider<IRestaurantRepository> _restaurantRepoProvider = Provider((ref) {
   final api = ref.read(_apiProvider);
   return RestaurantRepository(api);

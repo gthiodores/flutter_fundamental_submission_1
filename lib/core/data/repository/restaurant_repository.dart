@@ -1,12 +1,12 @@
-import 'package:restaurant_app/core/data/api/api_service.dart';
 import 'package:restaurant_app/core/domain/restaurant_repository_interface.dart';
 import 'package:restaurant_app/core/model/restaurant.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
 
 import '../../model/result_wrapper.dart';
+import '../api/api_service_interface.dart';
 
 class RestaurantRepository implements IRestaurantRepository {
-  final ApiService _apiService;
+  final IApiService _apiService;
   final List<SimpleRestaurant> _inMemoryCache = [];
   Restaurant? _detailCache;
 

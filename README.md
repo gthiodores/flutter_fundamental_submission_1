@@ -1,6 +1,6 @@
 # Restaurant App
 
-Submission 2 Dicoding Fundamental Flutter
+Submission Akhir Dicoding Fundamental Flutter
 
 ## Additional Feature
 - Added communication with an API

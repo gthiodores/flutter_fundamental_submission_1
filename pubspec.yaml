@@ -38,9 +38,12 @@ dependencies:
   flutter_image: ^4.1.0
   http: ^0.13.4
   flutter_riverpod: ^1.0.3
+  mockito: ^5.1.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
