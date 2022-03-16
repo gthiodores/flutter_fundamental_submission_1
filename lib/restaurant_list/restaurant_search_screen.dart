@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
-import 'package:restaurant_app/core/model/result_wrapper.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_item.dart';
 import 'package:restaurant_app/restaurant_list/widgets/restaurant_search_widget.dart';
 
@@ -43,24 +42,25 @@ class RestaurantSearchScreen extends ConsumerWidget {
           ),
           searchStream.when(
             data: (data) {
-              if (data is SuccessResult) {
-                final result = data as SuccessResult<List<SimpleRestaurant>>;
-                return _buildSearchResultWidget(result.data);
-              } else if (data is ErrorResult) {
-                final result = data as ErrorResult<List<SimpleRestaurant>>;
-                if (result.data != null) {
-                  return _buildSearchResultWidget(result.data!);
-                }
-                return _buildEmptyList();
-              } else {
-                final result = data as LoadingResult<List<SimpleRestaurant>>;
-                if (result.data == null) {
-                  return _buildCenterLoadingView();
-                }
-                return result.data!.isEmpty
-                    ? _buildCenterLoadingView()
-                    : _buildSearchResultWidget(result.data!);
-              }
+              return data.when(
+                success: (result) {
+                  return _buildSearchResultWidget(result.data);
+                },
+                loading: (result) {
+                  if (result.data == null) {
+                    return _buildCenterLoadingView();
+                  }
+                  return result.data!.isEmpty
+                      ? _buildCenterLoadingView()
+                      : _buildSearchResultWidget(result.data!);
+                },
+                error: (result) {
+                  if (result.data != null) {
+                    return _buildSearchResultWidget(result.data!);
+                  }
+                  return _buildEmptyList();
+                },
+              );
             },
             error: (err, stack) => _buildErrorView(onRetry: () {
               ref.refresh(fetchSearchProvider(searchText));

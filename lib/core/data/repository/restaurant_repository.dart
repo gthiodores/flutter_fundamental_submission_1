@@ -1,4 +1,5 @@
-import 'package:restaurant_app/core/domain/restaurant_repository_interface.dart';
+import 'package:restaurant_app/core/data/local/favorite_restaurant_database.dart';
+import 'package:restaurant_app/core/domain/repository/restaurant_repository_interface.dart';
 import 'package:restaurant_app/core/model/restaurant.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
 
@@ -7,10 +8,11 @@ import '../api/api_service_interface.dart';
 
 class RestaurantRepository implements IRestaurantRepository {
   final IApiService _apiService;
+  final IFavoriteRestaurantDatabase _database;
   final List<SimpleRestaurant> _inMemoryCache = [];
   Restaurant? _detailCache;
 
-  RestaurantRepository(this._apiService);
+  RestaurantRepository(this._apiService, this._database);
 
   @override
   Stream<Result<List<SimpleRestaurant>>> searchRestaurant(String query) async* {
@@ -63,5 +65,33 @@ class RestaurantRepository implements IRestaurantRepository {
     final item = await _apiService.getRestaurant(restaurantId);
     _detailCache = item;
     return item;
+  }
+
+  @override
+  Future<void> addRestaurantToFavorite(Restaurant restaurant) async {
+    final SimpleRestaurant mappedRestaurant = SimpleRestaurant(
+      id: restaurant.id,
+      name: restaurant.name,
+      description: restaurant.description,
+      pictureId: restaurant.pictureId,
+      city: restaurant.city,
+      rating: restaurant.rating,
+    );
+    await _database.addRestaurantToFavorite(mappedRestaurant.toJson());
+  }
+
+  @override
+  Future<List<SimpleRestaurant>> getFavoriteRestaurantList() async {
+    return await _database.getFavoriteRestaurantList();
+  }
+
+  @override
+  Future<bool> isRestaurantFavorite(String id) async {
+    return await _database.isRestaurantFavorite(id);
+  }
+
+  @override
+  Future<void> removeRestaurantFromFavorite(String id) async {
+    return await _database.removeRestaurantFromFavorite(id);
   }
 }

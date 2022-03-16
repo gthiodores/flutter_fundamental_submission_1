@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
 import 'package:restaurant_app/core/widget/custom_image.dart';
 import 'package:restaurant_app/core/widget/two_tile_text.dart';
+import 'package:restaurant_app/restaurant_detail/restaurant_favorite_provider.dart';
 import 'package:restaurant_app/restaurant_detail/widgets/restaurant_detail_categories.dart';
 
 import '../core/model/restaurant.dart';
@@ -19,7 +20,7 @@ class RestaurantDetailScreen extends ConsumerWidget {
     final _restaurant = ref.watch(fetchRestaurantDetailProvider(_restaurantId));
     return Scaffold(
       body: _restaurant.when(
-        data: (data) => _buildCustomScrollRestaurantDetail(data, context),
+        data: (data) => _buildCustomScrollRestaurantDetail(data, context, ref),
         error: (err, stack) => _buildErrorView(onRetry: () {
           ref.refresh(fetchRestaurantDetailProvider(_restaurantId));
         }),
@@ -52,7 +53,12 @@ class RestaurantDetailScreen extends ConsumerWidget {
   Widget _buildCustomScrollRestaurantDetail(
     Restaurant restaurant,
     BuildContext context,
+    WidgetRef ref,
   ) {
+    final _favorite = ref.watch(restaurantFavoriteNotifier(restaurant));
+    final _favoriteNotifier =
+        ref.watch(restaurantFavoriteNotifier(restaurant).notifier);
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -69,6 +75,21 @@ class RestaurantDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                if (_favorite) {
+                  _favoriteNotifier.removeFromFavorite();
+                } else {
+                  _favoriteNotifier.addToFavorite();
+                }
+              },
+              icon: Icon(
+                _favorite ? Icons.favorite : Icons.favorite_border,
+                color: Colors.pink,
+              ),
+            ),
+          ],
           flexibleSpace: FlexibleSpaceBar(
             centerTitle: true,
             title: Text(
