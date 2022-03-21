@@ -63,4 +63,14 @@ class FakeRestaurantRepository extends IRestaurantRepository {
           .toList(),
     );
   }
+
+  @override
+  Future<void> addRestaurantToDatabase(SimpleRestaurant restaurant) async {
+    _restaurantList.add(restaurant);
+  }
+
+  @override
+  Future<List<SimpleRestaurant>> getAllRestaurant() async {
+    return _restaurantList;
+  }
 }

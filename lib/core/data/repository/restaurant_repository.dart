@@ -77,7 +77,6 @@ class RestaurantRepository implements IRestaurantRepository {
       city: restaurant.city,
       rating: restaurant.rating,
     );
-    print("adding to database : ${mappedRestaurant.id}");
     await _database.addRestaurantToFavorite(mappedRestaurant.toJson());
   }
 
@@ -94,5 +93,15 @@ class RestaurantRepository implements IRestaurantRepository {
   @override
   Future<void> removeRestaurantFromFavorite(String id) async {
     return await _database.removeRestaurantFromFavorite(id);
+  }
+
+  @override
+  Future<void> addRestaurantToDatabase(SimpleRestaurant restaurant) async {
+    return await _database.addRestaurantToDatabase(restaurant.toJson());
+  }
+
+  @override
+  Future<List<SimpleRestaurant>> getAllRestaurant() async {
+    return await _database.getAllRestaurants();
   }
 }

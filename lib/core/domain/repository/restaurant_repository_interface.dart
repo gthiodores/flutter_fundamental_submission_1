@@ -13,7 +13,11 @@ abstract class IRestaurantRepository {
 
   Future<List<SimpleRestaurant>> getFavoriteRestaurantList();
 
+  Future<void> addRestaurantToDatabase(SimpleRestaurant restaurant);
+
   Future<void> addRestaurantToFavorite(Restaurant restaurant);
 
   Future<void> removeRestaurantFromFavorite(String id);
+
+  Future<List<SimpleRestaurant>> getAllRestaurant();
 }

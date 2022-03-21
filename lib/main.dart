@@ -1,12 +1,37 @@
+import 'dart:io';
+
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restaurant_app/core/util/background_service.dart';
+import 'package:restaurant_app/core/util/navigation.dart';
+import 'package:restaurant_app/core/util/notification_helper.dart';
 import 'package:restaurant_app/restaurant_detail/restaurant_detail_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_favorite_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_search_screen.dart';
 import 'package:restaurant_app/restaurant_settings/restaurant_settings_screen.dart';
 
-void main() => runApp(const ProviderScope(child: MyApp()));
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final NotificationHelper notificationHelper = NotificationHelper();
+  final BackgroundService backgroundService = BackgroundService();
+
+  backgroundService.initializeIsolate();
+
+  if (Platform.isAndroid) {
+    AndroidAlarmManager.initialize();
+  }
+
+  await notificationHelper.initNotifications(flutterLocalNotificationsPlugin);
+
+  runApp(const ProviderScope(child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -45,6 +70,7 @@ class MyApp extends StatelessWidget {
         RestaurantSettingsScreen.route: (context) =>
             const RestaurantSettingsScreen(),
       },
+      navigatorKey: navigatorKey,
     );
   }
 }

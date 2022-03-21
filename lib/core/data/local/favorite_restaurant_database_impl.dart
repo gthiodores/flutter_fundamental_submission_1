@@ -69,7 +69,11 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
   @override
   Future<List<SimpleRestaurant>> getFavoriteRestaurantList() async {
     final db = await _getDatabase;
-    final dbObject = await db.query(_tableName, where: "$_isFavorite = ?", whereArgs: [1]);
+    final dbObject = await db.query(
+      _tableName,
+      where: "$_isFavorite = ?",
+      whereArgs: [1],
+    );
     return dbObject.map((map) => SimpleRestaurant.fromJson(map)).toList();
   }
 
@@ -104,5 +108,46 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
       where: "$_favoriteId = ?",
       whereArgs: [id],
     );
+  }
+
+  @override
+  Future<void> addRestaurantToDatabase(Map<String, dynamic> dbObject) async {
+    final db = await _getDatabase;
+    final String objId = dbObject[_favoriteId];
+    final isFavorite = await isRestaurantFavorite(objId);
+
+    // Obj is a fav restaurant, we are 100% sure it's in the database
+    if (isFavorite) {
+      dbObject[_isFavorite] = 1;
+      await db.update(
+        _tableName,
+        dbObject,
+        where: "$_favoriteId = ?",
+        whereArgs: [objId],
+      );
+    } else {
+      // Obj is not a fav restaurant, obj might or might not be in the database
+      dbObject[_isFavorite] = 0;
+      try {
+        // Assume that obj is not in the db
+        await db.insert(_tableName, dbObject);
+      } catch (e) {
+        // Insertion failed, obj is in the db, update values instead
+        await db.update(
+          _tableName,
+          dbObject,
+          where: "$_favoriteId = ?",
+          whereArgs: [objId],
+        );
+      }
+    }
+  }
+
+  @override
+  Future<List<SimpleRestaurant>> getAllRestaurants() async {
+    final db = await _getDatabase;
+    final dbObjects = await db.query(_tableName);
+
+    return dbObjects.map((obj) => SimpleRestaurant.fromJson(obj)).toList();
   }
 }

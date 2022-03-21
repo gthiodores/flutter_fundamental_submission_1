@@ -2,16 +2,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/data/api/api_service_interface.dart';
 import 'package:restaurant_app/core/data/local/favorite_restaurant_database_impl.dart';
 import 'package:restaurant_app/core/data/repository/restaurant_repository.dart';
+import 'package:restaurant_app/core/domain/use_case/add_restaurant_to_database_impl.dart';
 import 'package:restaurant_app/core/domain/use_case/add_restaurant_to_favorite_impl.dart';
 import 'package:restaurant_app/core/domain/use_case/get_restaurant_favorite_state_impl.dart';
 import 'package:restaurant_app/core/domain/repository/restaurant_repository_interface.dart';
+import 'package:restaurant_app/core/domain/use_case/get_restaurant_notif_pref_impl.dart';
 import 'package:restaurant_app/core/domain/use_case/remove_restaurant_from_favorite.dart';
 import 'package:restaurant_app/core/domain/use_case/remove_restaurant_from_favorite_impl.dart';
+import 'package:restaurant_app/core/domain/use_case/set_restaurant_notification_impl.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
 import 'package:http/http.dart' as http;
+import 'package:restaurant_app/core/util/background_service.dart';
+import 'package:restaurant_app/core/util/notification_helper.dart';
+import 'package:restaurant_app/main.dart';
 
 import '../data/api/api_service.dart';
 import '../data/local/favorite_restaurant_database.dart';
+import '../domain/use_case/add_restaurant_to_database.dart';
 import '../domain/use_case/add_restaurant_to_favorite.dart';
 import '../domain/use_case/get_restaurant_favorite_state.dart';
 import '../model/restaurant.dart';
@@ -71,7 +78,20 @@ final addRestaurantToFavoriteProvider =
   return AddRestaurantToFavoriteImpl(repository);
 });
 
-final removeRestaurantFromFavoriteProvider = Provider.autoDispose<RemoveRestaurantFromFavorite> ((ref) {
+final removeRestaurantFromFavoriteProvider =
+    Provider.autoDispose<RemoveRestaurantFromFavorite>((ref) {
   final repository = ref.read(_restaurantRepoProvider);
   return RemoveRestaurantFromFavoriteImpl(repository);
 });
+
+final addRestaurantToDatabaseProvider =
+    Provider.autoDispose<AddRestaurantToDatabase>((ref) {
+  final repository = ref.read(_restaurantRepoProvider);
+  return AddRestaurantToDatabaseImpl(repository);
+});
+
+final setRestaurantNotification =
+    Provider((ref) => SetRestaurantNotificationImpl());
+
+final getRestaurantNotificationPref =
+    Provider((ref) => GetRestaurantNotifPrefImpl());
