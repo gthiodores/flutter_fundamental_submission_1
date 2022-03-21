@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
+import 'package:restaurant_app/restaurant_detail/restaurant_detail_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_item.dart';
 
 import '../core/model/simple_restaurant.dart';
@@ -20,7 +21,13 @@ class RestaurantFavoritesScreen extends ConsumerWidget {
       ),
       body: favorites.when(
         data: (data) {
-          return _buildListItemViews(restaurants: data);
+          return _buildListItemViews(
+              restaurants: data,
+              onTap: (id) async {
+                await Navigator.pushNamed(context, RestaurantDetailScreen.route,
+                    arguments: id);
+                ref.refresh(fetchRestaurantFavoriteListProvider);
+              });
         },
         error: (error, stack) {
           return _buildErrorView();
@@ -61,13 +68,13 @@ class RestaurantFavoritesScreen extends ConsumerWidget {
       itemCount: restaurants.length,
       itemBuilder: (context, index) {
         final item = restaurants[index];
-        return InkWell(
-          onTap: () {
-            onTap?.call(item.id);
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RestaurantListItem(restaurant: item),
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RestaurantListItem(
+            restaurant: item,
+            onTap: () {
+              onTap?.call(item.id);
+            },
           ),
         );
       },

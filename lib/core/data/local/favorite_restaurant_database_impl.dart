@@ -16,6 +16,7 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
   final String _favoritePictureId = "pictureId";
   final String _favoriteCity = "city";
   final String _favoriteRating = "rating";
+  final String _isFavorite = "favorite";
 
   // Singleton database instance
   static Database? _database;
@@ -38,7 +39,8 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
                $_favoriteDescription TEXT,
                $_favoritePictureId TEXT,
                $_favoriteCity TEXT,
-               $_favoriteRating REAL
+               $_favoriteRating REAL,
+               $_isFavorite INTEGER
              )''',
         );
       },
@@ -51,13 +53,23 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
   @override
   Future<void> addRestaurantToFavorite(Map<String, dynamic> dbObject) async {
     final db = await _getDatabase;
-    await db.insert(_tableName, dbObject);
+    dbObject[_isFavorite] = 1;
+    try {
+      await db.insert(_tableName, dbObject);
+    } catch (e) {
+      await db.update(
+        _tableName,
+        dbObject,
+        where: "$_favoriteId = ?",
+        whereArgs: [dbObject[_favoriteId]],
+      );
+    }
   }
 
   @override
   Future<List<SimpleRestaurant>> getFavoriteRestaurantList() async {
     final db = await _getDatabase;
-    final dbObject = await db.query(_tableName);
+    final dbObject = await db.query(_tableName, where: "$_isFavorite = ?", whereArgs: [1]);
     return dbObject.map((map) => SimpleRestaurant.fromJson(map)).toList();
   }
 
@@ -66,8 +78,8 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
     final db = await _getDatabase;
     final dbObject = await db.query(
       _tableName,
-      where: "$_favoriteId = ?",
-      whereArgs: [id],
+      where: "$_favoriteId = ? AND $_isFavorite = ?",
+      whereArgs: [id, 1],
       limit: 1,
     );
     return dbObject.isNotEmpty;
@@ -76,8 +88,19 @@ class FavoriteRestaurantDatabaseImpl extends IFavoriteRestaurantDatabase {
   @override
   Future<void> removeRestaurantFromFavorite(String id) async {
     final db = await _getDatabase;
-    await db.delete(
+    final dbObject = await db.query(
       _tableName,
+      where: "$_favoriteId = ? AND $_isFavorite = ?",
+      whereArgs: [id, 1],
+      limit: 1,
+    );
+
+    final updatedDbObject = Map.of(dbObject.first);
+    updatedDbObject.update(_isFavorite, (favorite) => 0, ifAbsent: () => 0);
+
+    await db.update(
+      _tableName,
+      updatedDbObject,
       where: "$_favoriteId = ?",
       whereArgs: [id],
     );

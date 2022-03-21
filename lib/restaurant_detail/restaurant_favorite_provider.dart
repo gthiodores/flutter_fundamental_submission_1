@@ -42,6 +42,7 @@ class RestaurantFavoriteNotifier extends StateNotifier<bool> {
   }
 
   void removeFromFavorite() async {
+    print(_restaurant.id);
     await _removeRestaurantFromFavorite.execute(_restaurant.id);
     _getFavoriteState();
   }

@@ -41,6 +41,10 @@ dependencies:
   mockito: ^5.1.0
   sqflite: ^2.0.2
   path: ^1.8.0
+  flutter_local_notifications: ^9.4.0
+  rxdart: ^0.27.3
+  android_alarm_manager_plus: ^2.0.5
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:

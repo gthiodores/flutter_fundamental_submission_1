@@ -77,6 +77,7 @@ class RestaurantRepository implements IRestaurantRepository {
       city: restaurant.city,
       rating: restaurant.rating,
     );
+    print("adding to database : ${mappedRestaurant.id}");
     await _database.addRestaurantToFavorite(mappedRestaurant.toJson());
   }
 

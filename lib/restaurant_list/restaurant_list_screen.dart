@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/core/di/dependency_provider.dart';
 import 'package:restaurant_app/core/model/simple_restaurant.dart';
-import 'package:restaurant_app/restaurant_detail/restaurant_detail_screen.dart';
-import 'package:restaurant_app/restaurant_list/restaurant_favorite_list.dart';
+import 'package:restaurant_app/restaurant_list/restaurant_favorite_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_item.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_search_screen.dart';
+import 'package:restaurant_app/restaurant_settings/restaurant_settings_screen.dart';
 
 class RestaurantListScreen extends ConsumerWidget {
   static const route = '/list_restaurant';
@@ -14,6 +14,7 @@ class RestaurantListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _optionsMenuItems = ["Favorites", "Settings"];
     final _restaurantList = ref.watch(fetchRestaurantProvider);
 
     return Scaffold(
@@ -25,11 +26,19 @@ class RestaurantListScreen extends ConsumerWidget {
                 Navigator.of(context).pushNamed(RestaurantSearchScreen.route);
               },
               icon: const Icon(Icons.search)),
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(RestaurantFavoritesScreen.route);
+          PopupMenuButton(
+            itemBuilder: ((context) {
+              return _optionsMenuItems
+                  .map((item) => PopupMenuItem(child: Text(item), value: item))
+                  .toList();
+            }),
+            onSelected: (option) {
+              if (option == "Favorites") {
+                Navigator.pushNamed(context, RestaurantFavoritesScreen.route);
+              } else {
+                Navigator.pushNamed(context, RestaurantSettingsScreen.route);
+              }
             },
-            icon: const Icon(Icons.favorite),
           ),
         ],
       ),
@@ -38,12 +47,7 @@ class RestaurantListScreen extends ConsumerWidget {
           ref.refresh(fetchRestaurantProvider);
         },
         child: _restaurantList.when(
-          data: (data) => _buildListItemViews(
-              restaurants: data,
-              onTap: (id) {
-                Navigator.of(context)
-                    .pushNamed(RestaurantDetailScreen.route, arguments: id);
-              }),
+          data: (data) => _buildListItemViews(restaurants: data),
           error: (err, stack) => _buildErrorView(onRetry: () async {
             ref.refresh(fetchRestaurantProvider);
           }),
@@ -76,20 +80,14 @@ class RestaurantListScreen extends ConsumerWidget {
 
   Widget _buildListItemViews({
     required List<SimpleRestaurant> restaurants,
-    Function(String)? onTap,
   }) {
     return ListView.builder(
       itemCount: restaurants.length,
       itemBuilder: (context, index) {
         final item = restaurants[index];
-        return InkWell(
-          onTap: () {
-            onTap?.call(item.id);
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RestaurantListItem(restaurant: item),
-          ),
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RestaurantListItem(restaurant: item),
         );
       },
     );

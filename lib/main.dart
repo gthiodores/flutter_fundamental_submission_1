@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_app/restaurant_detail/restaurant_detail_screen.dart';
-import 'package:restaurant_app/restaurant_list/restaurant_favorite_list.dart';
+import 'package:restaurant_app/restaurant_list/restaurant_favorite_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_list_screen.dart';
 import 'package:restaurant_app/restaurant_list/restaurant_search_screen.dart';
+import 'package:restaurant_app/restaurant_settings/restaurant_settings_screen.dart';
 
 void main() => runApp(const ProviderScope(child: MyApp()));
 
@@ -41,6 +42,8 @@ class MyApp extends StatelessWidget {
             const RestaurantSearchScreen(),
         RestaurantFavoritesScreen.route: (context) =>
             const RestaurantFavoritesScreen(),
+        RestaurantSettingsScreen.route: (context) =>
+            const RestaurantSettingsScreen(),
       },
     );
   }
